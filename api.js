@@ -139,24 +139,12 @@ exports.setApp = function (app, client) {
     }
   });
 
-  //GET PROFILE
-  app.get('/api/getProfile', async (req, res, next) =>
-  {
-    Profile.findOne({ "_id": new ObjectId(req.params.id) }, (error, result) => {
-      if (error) {
-        return res.status(500).json(error);
-      }
-      res.status(200).json();
-    });
-  });
-
   //EDIT PROFILE
   // work in progress
   app.put('/api/edit/:profileId', async (req, res) => {
     try{
-      const user = await User.findByIdAndUpdate(req.params.id,
-        {$set:req.body,});
-      res.status(200).json("Account updated")
+      const profile = await User.findByIdAndUpdate({_id: req.params.profileId}, {$set: {Gamertag: req.body.Gamertag}});
+      res.status(200).json(profile + " Account updated");
     } catch(err) {
         return res.status(500).json(err);
     }
@@ -186,6 +174,17 @@ exports.setApp = function (app, client) {
     try {
       const user = await User.findById(req.params.id);
       const { Password, ...other } = user._doc;
+      res.status(200).json(other);
+    } catch (err) {
+      res.status(404).json(err);
+    }
+  });
+
+  //GET PROFILE
+  app.get('/api/getProfile/:id', async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      const { _id, FirstName, Password, Email, Friends, __v, ...other } = user._doc;
       res.status(200).json(other);
     } catch (err) {
       res.status(404).json(err);
